@@ -1,0 +1,2 @@
+# Ensure build.sh always uses LF line endings
+build.sh text eol=lf
