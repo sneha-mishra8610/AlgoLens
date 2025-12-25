@@ -15,6 +15,8 @@ function App() {
   const [mode, setMode] = useState('sorting');
   const [graphAlgo, setGraphAlgo] = useState('BFS');
   const [sortingAlgo, setSortingAlgo] = useState('bubble_sort');
+  const [searchAlgo, setSearchAlgo] = useState('linear_search');
+  const [searchTarget, setSearchTarget] = useState(42);
   const [graphText, setGraphText] = useState(`{
   "A": ["B", "C"],
   "B": ["D", "E"],
@@ -38,7 +40,7 @@ function App() {
   };
 
   const handleExecute = async (code) => {
-    if (mode === 'sorting') {
+    if (mode === 'sorting' || mode === 'searching') {
       if (array.length === 0) {
         alert('Please generate an array first!');
         return;
@@ -46,7 +48,8 @@ function App() {
 
       setIsLoading(true);
       try {
-        const result = await executeCode(code, array);
+        const target = mode === 'searching' ? searchTarget : null;
+        const result = await executeCode(code, array, target);
         
         if (result.success) {
           if (result.default_speed_ms) {
@@ -91,12 +94,13 @@ function App() {
             style={{ padding: '8px' }}
           >
             <option value="sorting">Sorting</option>
+            <option value="searching">Searching</option>
             <option value="graphs">Graphs</option>
           </select>
         </div>
       </div>
 
-{mode === 'sorting' && (
+{(mode === 'sorting' || mode === 'searching') && (
   <div style={{ marginBottom: '10px' }}>
     <label>Array Size: {arraySize} </label>
     <input
@@ -110,19 +114,6 @@ function App() {
   </div>
 )}
 
-<div style={{ marginBottom: '20px' }}>
-  <label>Playback Speed: {speedMultiplier.toFixed(1)}x </label>
-  <input
-    type="range"
-    min="0.25"
-    max="1.25"
-    step="0.05"
-    value={speedMultiplier}
-    onChange={(e) => setSpeedMultiplier(Number(e.target.value))}
-    style={{ width: '300px' }}
-  />
-</div>
-
 {mode === 'sorting' ? (
   <div style={{ marginBottom: '20px' }}>
     <div style={{ marginBottom: 10 }}>
@@ -135,6 +126,47 @@ function App() {
         <option value="quick_sort">Quick Sort</option>
         <option value="radix_sort">Radix Sort</option>
       </select>
+    </div>
+    <button
+      onClick={generateArray}
+      style={{
+        padding: '10px 20px',
+        backgroundColor: '#2196F3',
+        color: 'white',
+        border: 'none',
+        borderRadius: '5px',
+        cursor: 'pointer'
+      }}
+    >
+      Generate Random Array
+    </button>
+    {array.length > 0 && (
+      <p style={{ marginTop: '10px', color: '#444' }}>
+        Current Array: [{array.join(', ')}]
+      </p>
+    )}
+  </div>
+) : mode === 'searching' ? (
+  <div style={{ marginBottom: '20px' }}>
+    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '10px' }}>
+      <div>
+        <label style={{ marginRight: 8 }}>Algorithm</label>
+        <select value={searchAlgo} onChange={(e) => setSearchAlgo(e.target.value)} style={{ padding: '8px' }}>
+          <option value="linear_search">Linear Search</option>
+          <option value="binary_search">Binary Search</option>
+          <option value="lower_bound">Lower Bound (>=)</option>
+          <option value="upper_bound">Upper Bound (>)</option>
+        </select>
+      </div>
+      <div>
+        <label style={{ marginRight: 8 }}>Target</label>
+        <input
+          type="number"
+          value={searchTarget}
+          onChange={(e) => setSearchTarget(Number(e.target.value))}
+          style={{ padding: '8px', width: '120px' }}
+        />
+      </div>
     </div>
     <button
       onClick={generateArray}
@@ -224,7 +256,11 @@ function App() {
       }}>
 
         <div>
-          <CodeEditor onExecute={handleExecute} mode={mode === 'sorting' ? 'sorting' : 'graph'} selectedExample={mode==='sorting' ? sortingAlgo : undefined} />
+          <CodeEditor
+            onExecute={handleExecute}
+            mode={mode === 'sorting' ? 'sorting' : mode === 'searching' ? 'searching' : 'graph'}
+            selectedExample={mode==='sorting' ? sortingAlgo : mode === 'searching' ? searchAlgo : undefined}
+          />
           
           <div style={{
             padding: '20px',
@@ -241,7 +277,7 @@ function App() {
         </div>
 
         <div>
-          {mode === 'sorting' ? (
+          {(mode === 'sorting' || mode === 'searching') ? (
             <Visualizer 
               steps={steps}
               isLoading={isLoading}
@@ -259,6 +295,19 @@ function App() {
               onStartNodeChange={setStartNode}
             />
           )}
+          
+          <div style={{ marginTop: '20px', padding: '15px', backgroundColor: 'white', borderRadius: '10px', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
+            <label>Playback Speed: {speedMultiplier.toFixed(1)}x </label>
+            <input
+              type="range"
+              min="0.25"
+              max="1.25"
+              step="0.05"
+              value={speedMultiplier}
+              onChange={(e) => setSpeedMultiplier(Number(e.target.value))}
+              style={{ width: '100%' }}
+            />
+          </div>
         </div>
       </div>
     </div>

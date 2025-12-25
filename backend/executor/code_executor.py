@@ -94,21 +94,15 @@ def execute_user_code(code, input_array):
 
 # Example usage template for users
 EXAMPLE_TEMPLATE = '''# Bubble Sort Example
-# Use viz.capture() to show visualization steps
-# The array is available as 'arr'
 
 n = len(arr)
 for i in range(n):
     for j in range(n - i - 1):
-        # Show comparison
         viz.capture(arr, comparing=[j, j+1], sorted_idx=list(range(n-i, n)))
         
         if arr[j] > arr[j+1]:
-            # Swap
             arr[j], arr[j+1] = arr[j+1], arr[j]
-            # Show swap
             viz.capture(arr, swapping=[j, j+1], sorted_idx=list(range(n-i, n)))
 
-# Final state
 viz.capture(arr, sorted_idx=list(range(n)))
 '''

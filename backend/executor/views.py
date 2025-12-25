@@ -7,6 +7,7 @@ def execute_code(request):
     """Execute user's sorting code and return visualization steps"""
     code = request.data.get('code', '')
     array = request.data.get('array', [])
+    target = request.data.get('target')
     
     if not code:
         return Response({'error': 'No code provided'}, status=400)
@@ -14,8 +15,7 @@ def execute_code(request):
     if not array:
         return Response({'error': 'No array provided'}, status=400)
     
-    # Execute the code
-    result = execute_user_code(code, array)
+    result = execute_user_code(code, array, target)
     
     return Response(result)
 
@@ -142,5 +142,126 @@ if len(arr) > 0:
         counting_sort_exp(arr, exp)
         exp *= 10
 viz.capture(arr, sorted_idx=list(range(len(arr))))
+''',
+        'linear_search': '''# Linear Search Example
+found_idx = -1
+for i, val in enumerate(arr):
+    viz.capture(arr, comparing=[i])
+    if val == target:
+        found_idx = i
+        viz.capture(arr, sorted_idx=[i])  # reuse green to mark found
+        break
+
+if found_idx == -1:
+    print('Target not found')
+else:
+    print(f'Target found at index {found_idx}')
+''',
+        'binary_search': '''# Binary Search Example (array should be sorted)
+low, high = 0, len(arr) - 1
+found_idx = -1
+
+if len(arr) == 0:
+    print('Empty array; target not found')
+else:
+    viz.capture(arr, comparing=[low, high], sorted_idx=list(range(low, high + 1)))
+
+    while low <= high:
+        mid = (low + high) // 2
+        active_window = list(range(low, high + 1))
+        viz.capture(arr, comparing=[low, mid, high], sorted_idx=active_window)
+
+        if arr[mid] == target:
+            found_idx = mid
+            viz.capture(arr, sorted_idx=[mid])
+            break
+
+        if arr[mid] < target:
+            eliminated = list(range(low, mid + 1))
+            low = mid + 1
+        else:
+            eliminated = list(range(mid, high + 1))
+            high = mid - 1
+
+        remaining_window = list(range(low, high + 1)) if low <= high else []
+        viz.capture(
+            arr,
+            swapping=eliminated,
+            comparing=[low, high] if low <= high else [],
+            sorted_idx=remaining_window,
+        )
+
+    if found_idx == -1:
+        print('Target not found')
+    else:
+        print(f'Target found at index {found_idx}')
+''',
+        'lower_bound': '''# Lower Bound: first index where arr[i] >= target (array must be sorted)
+low, high = 0, len(arr) - 1
+ans = -1
+
+if len(arr) == 0:
+    print('Empty array; target not found')
+else:
+    while low <= high:
+        mid = (low + high) // 2
+        window = list(range(low, high + 1))
+        viz.capture(arr, comparing=[low, mid, high], sorted_idx=window)
+
+        if arr[mid] >= target:
+            ans = mid
+            eliminated = list(range(mid + 1, high + 1))
+            high = mid - 1
+        else:
+            eliminated = list(range(low, mid + 1))
+            low = mid + 1
+
+        remaining = list(range(low, high + 1)) if low <= high else []
+        viz.capture(
+            arr,
+            swapping=eliminated,
+            comparing=[low, high] if low <= high else [],
+            sorted_idx=remaining,
+        )
+
+    if ans == -1:
+        print('No element >= target; returning -1')
+    else:
+        viz.capture(arr, sorted_idx=[ans])
+        print(f'Lower bound index: {ans}, value: {arr[ans]}')
+''',
+        'upper_bound': '''# Upper Bound: first index where arr[i] > target (array must be sorted)
+low, high = 0, len(arr) - 1
+ans = -1
+
+if len(arr) == 0:
+    print('Empty array; target not found')
+else:
+    while low <= high:
+        mid = (low + high) // 2
+        window = list(range(low, high + 1))
+        viz.capture(arr, comparing=[low, mid, high], sorted_idx=window)
+
+        if arr[mid] > target:
+            ans = mid
+            eliminated = list(range(mid + 1, high + 1))
+            high = mid - 1
+        else:
+            eliminated = list(range(low, mid + 1))
+            low = mid + 1
+
+        remaining = list(range(low, high + 1)) if low <= high else []
+        viz.capture(
+            arr,
+            swapping=eliminated,
+            comparing=[low, high] if low <= high else [],
+            sorted_idx=remaining,
+        )
+
+    if ans == -1:
+        print('No element > target; returning -1')
+    else:
+        viz.capture(arr, sorted_idx=[ans])
+        print(f'Upper bound index: {ans}, value: {arr[ans]}')
 '''
     })

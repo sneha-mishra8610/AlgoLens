@@ -33,12 +33,11 @@ function CodeEditor({ onExecute, mode = 'sorting', selectedExample: selectedExam
   }, []);
 
   useEffect(() => {
-    if (mode !== 'sorting') return;
     if (!selectedExampleProp) return;
     if (!examples || !examples[selectedExampleProp]) return;
     setSelectedKey(selectedExampleProp);
     setCode(examples[selectedExampleProp] || '');
-  }, [selectedExampleProp, mode, examples]);
+  }, [selectedExampleProp, examples]);
 
   const handleExecute = () => {
     setError('');
@@ -59,7 +58,7 @@ function CodeEditor({ onExecute, mode = 'sorting', selectedExample: selectedExam
       marginBottom: '20px'
     }}>
       <div style={{ marginBottom: '15px' }}>
-        <h3>{mode === 'sorting' ? 'Sorting Algorithm Editor' : 'Algorithm Editor'}</h3>
+        <h3>{mode === 'sorting' ? 'Sorting Algorithm Editor' : mode === 'searching' ? 'Searching Algorithm Editor' : 'Algorithm Editor'}</h3>
       </div>
 
       <textarea
@@ -75,7 +74,7 @@ function CodeEditor({ onExecute, mode = 'sorting', selectedExample: selectedExam
           borderRadius: '5px',
           resize: 'vertical'
         }}
-        placeholder="Write your sorting algorithm here..."
+        placeholder={mode === 'searching' ? 'Write or tweak the searching algorithm...' : 'Write your sorting algorithm here...'}
       />
 
       <div style={{ marginTop: '15px' }}>
@@ -91,7 +90,7 @@ function CodeEditor({ onExecute, mode = 'sorting', selectedExample: selectedExam
             fontSize: '16px'
           }}
         >
-          {mode === 'sorting' ? 'Execute & Visualize' : 'Run Traversal'}
+          {mode === 'sorting' ? 'Execute & Visualize' : mode === 'searching' ? 'Execute Search' : 'Run Traversal'}
         </button>
       </div>
 
